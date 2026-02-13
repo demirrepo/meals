@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meals/models/meal.dart';
+import 'package:meals/widgets/meal_item_trait.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MealItem extends StatelessWidget {
-  const MealItem({super.key, required this.meal});
+  const MealItem({super.key, required this.meal, required this.onSelectMeal});
 
   final Meal meal;
+
+  String get complexityText {
+    return meal.complexity.name[0].toUpperCase() +
+        meal.complexity.name.substring(1);
+  }
+
+  String get affordabilityText {
+    return meal.affordability.name[0].toUpperCase() +
+        meal.affordability.name.substring(1);
+  }
+
+  final void Function(BuildContext context, Meal meal) onSelectMeal;
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +30,22 @@ class MealItem extends StatelessWidget {
       elevation: 4,
       clipBehavior: Clip.hardEdge,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          onSelectMeal(context, meal);
+        },
         child: Stack(
           children: [
             FadeInImage(
               fit: BoxFit.cover,
               placeholder: MemoryImage(kTransparentImage),
-              image: NetworkImage(meal.imageUrl),
+              // Update this line:
+              image: NetworkImage(
+                meal.imageUrl,
+                headers: const {
+                  'User-Agent':
+                      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                },
+              ),
               height: 200,
               width: double.infinity,
             ),
@@ -34,14 +57,14 @@ class MealItem extends StatelessWidget {
                 color: Colors.black54,
                 padding: const EdgeInsets.symmetric(
                   vertical: 5,
-                  horizontal: 44,
+                  horizontal: 34,
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       meal.title,
                       maxLines: 2,
-                      textAlign: TextAlign.center,
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(
@@ -51,8 +74,19 @@ class MealItem extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 12),
-                    Row(children: [
-
+                    Row(
+                      children: [
+                        MealItemTrait(
+                          icon: Icons.schedule,
+                          label: "${meal.duration} min",
+                        ),
+                        const SizedBox(width: 12),
+                        MealItemTrait(icon: Icons.work, label: complexityText),
+                        const SizedBox(width: 12),
+                        MealItemTrait(
+                          icon: Icons.money_sharp,
+                          label: affordabilityText,
+                        ),
                       ],
                     ),
                   ],
