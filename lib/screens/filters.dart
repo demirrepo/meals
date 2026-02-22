@@ -6,7 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 enum Filter { glutenFree, lactoseFree, vegetarian, vegan }
 
 class FiltersScreen extends StatefulWidget {
-  const FiltersScreen({super.key});
+  const FiltersScreen({super.key, required this.currentFilters});
+
+  final Map<Filter, bool> currentFilters;
 
   @override
   State<StatefulWidget> createState() {
@@ -19,6 +21,15 @@ class _FiltersScreenState extends State<FiltersScreen> {
   var _lactoseFreeFilterSet = false;
   var _vegetarianFilterSet = false;
   var _veganFilterSet = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _glutenFreeFilterSet = widget.currentFilters[Filter.glutenFree]!;
+    _lactoseFreeFilterSet = widget.currentFilters[Filter.lactoseFree]!;
+    _veganFilterSet = widget.currentFilters[Filter.vegan]!;
+    _vegetarianFilterSet = widget.currentFilters[Filter.vegetarian]!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +46,8 @@ class _FiltersScreenState extends State<FiltersScreen> {
       // ),
       appBar: AppBar(title: const Text("Your Filters")),
       body: PopScope(
-        onPopInvokedWithResult: (didPop, dynamic result) {
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
           if (didPop) return;
           Navigator.of(context).pop({
             Filter.glutenFree: _glutenFreeFilterSet,
@@ -44,7 +56,6 @@ class _FiltersScreenState extends State<FiltersScreen> {
             Filter.vegan: _veganFilterSet,
           });
         },
-        canPop: false,
         child: Column(
           children: [
             SwitchListTile(
